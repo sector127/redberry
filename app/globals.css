@@ -5,6 +5,10 @@
   --foreground: #171717;
 }
 
+@theme {
+  --color-darkBlue: #10151f;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -14,7 +18,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #ffffff;
     --foreground: #ededed;
   }
 }
@@ -23,4 +27,17 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.fixed-canvas {
+  width: 1920px;
+  height: 1080px;
+  background: #fff;
+  transform-origin: top;
 }
