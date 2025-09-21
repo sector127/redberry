@@ -3,7 +3,7 @@ import Link from "next/link";
 export const LogIn = () => {
   return (
     <div className="w-[64px] h-[20px] text-xs">
-        <Link href="/" className="flex items-center justify-between">
+        <Link href="/login" className="flex items-center justify-between">
       <svg
         width="20"
         height="20"
