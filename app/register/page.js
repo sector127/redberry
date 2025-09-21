@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { User } from "@/lib/icons";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -35,18 +36,27 @@ const RegisterPage = () => {
 
   const validateImageFile = (file) => {
     if (!file) return { isValid: true, error: "" };
-    
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     const maxSize = 1 * 1024 * 1024;
-    
+
     if (!validTypes.includes(file.type)) {
-      return { isValid: false, error: "Please select a valid image format (JPEG, PNG, GIF, or WebP)" };
+      return {
+        isValid: false,
+        error: "Please select a valid image format (JPEG, PNG, GIF, or WebP)",
+      };
     }
-    
+
     if (file.size > maxSize) {
       return { isValid: false, error: "Image size must be less than 1MB" };
     }
-    
+
     return { isValid: true, error: "" };
   };
 
@@ -67,33 +77,28 @@ const RegisterPage = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    
+
     if (file) {
       const validation = validateImageFile(file);
-      
+
       if (validation.isValid) {
         setFormData((prev) => ({
           ...prev,
           avatar: file,
         }));
-        
+
         const reader = new FileReader();
         reader.onload = (e) => {
           setAvatarPreview(e.target.result);
         };
         reader.readAsDataURL(file);
-        
+
         if (errors.avatar) {
           setErrors((prev) => ({
             ...prev,
             avatar: "",
           }));
         }
-      } else if (response.status === 413) {
-        setErrors((prev) => ({
-          ...prev,
-          form: "The uploaded file is too large. Please choose a smaller image (under 1MB).",
-        }));
       } else {
         setErrors((prev) => ({
           ...prev,
@@ -112,6 +117,12 @@ const RegisterPage = () => {
       }));
       setAvatarPreview(null);
     }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(null);
+    setFormData((prev) => ({ ...prev, avatar: null }));
+    document.getElementById("avatar").value = "";
   };
 
   const handleFocus = (fieldName) => {
@@ -160,73 +171,81 @@ const RegisterPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setErrors({});
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrors({});
 
-  if (!validateForm()) {
-    setIsSubmitting(false);
-    return;
-  }
-
-  try {
-    const formDataToSend = new FormData();
-    formDataToSend.append('username', formData.username);
-    formDataToSend.append('email', formData.email);
-    formDataToSend.append('password', formData.password);
-    formDataToSend.append('password_confirmation', formData.confirmPassword);
-    if (formData.avatar) {
-      formDataToSend.append('avatar', formData.avatar);
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
     }
 
-    const response = await fetch('https://api.redseam.redberryinternship.ge/api/register', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-      },
-      body: formDataToSend,
-    });
-
-    if (response.ok) {
-      toast.success('Registration successful! Redirecting to login...', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-
-      setTimeout(() => {
-        router.push('/login');
-      }, 3000); 
-    } else {
-      
-      const errorData = await response.json();
-      
-      if (response.status === 422) {
-        const apiErrors = errorData.errors || {};
-        setErrors({
-          username: apiErrors.username?.[0] || '',
-          email: apiErrors.email?.[0] || '',
-          password: apiErrors.password?.[0] || '',
-          confirmPassword: apiErrors.password_confirmation?.[0] || '',
-          avatar: apiErrors.avatar?.[0] || '',
-        });
-      } else if (response.status === 413) {
-        setErrors({ form: 'The uploaded file is too large. Please choose a smaller image (under 1MB).' });
-      } else {
-        setErrors({ form: errorData.message || 'Registration failed. Please try again.' });
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("username", formData.username);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("password_confirmation", formData.confirmPassword);
+      if (formData.avatar) {
+        formDataToSend.append("avatar", formData.avatar);
       }
+
+      const response = await fetch(
+        "https://api.redseam.redberryinternship.ge/api/register",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: formDataToSend,
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Registration successful! Redirecting to login...", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        setTimeout(() => {
+          router.push("/login");
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+
+        if (response.status === 422) {
+          const apiErrors = errorData.errors || {};
+          setErrors({
+            username: apiErrors.username?.[0] || "",
+            email: apiErrors.email?.[0] || "",
+            password: apiErrors.password?.[0] || "",
+            confirmPassword: apiErrors.password_confirmation?.[0] || "",
+            avatar: apiErrors.avatar?.[0] || "",
+          });
+        } else if (response.status === 413) {
+          setErrors({
+            form: "The uploaded file is too large. Please choose a smaller image (under 1MB).",
+          });
+        } else {
+          setErrors({
+            form: errorData.message || "Registration failed. Please try again.",
+          });
+        }
+      }
+    } catch (error) {
+      setErrors({
+        form: "An error occurred. Please check your connection and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    setErrors({ form: 'An error occurred. Please check your connection and try again.' });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -241,6 +260,57 @@ const handleSubmit = async (e) => {
         <h1 className="text-5xl font-semibold text-black mb-6">Register</h1>
 
         <form className="space-y-6 w-[554px]" onSubmit={handleSubmit}>
+          {/* Avatar Field */}
+          <div>
+            <div className="space-y-2">
+              <div className="flex flex-row items-center space-x-4">
+                <div className="relative">
+                  {avatarPreview ? (
+                    <Image
+                      src={avatarPreview}
+                      alt="Avatar preview"
+                      width={100}
+                      height={100}
+                      className="w-[100px] h-[100px] rounded-full object-cover border-2 border-gray-300"
+                    />
+                  ) : (
+                    <User
+                      size={100}
+                      color="#3E424A"
+                      className="border-2 border-darkBlue rounded-full p-2"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-row space-x-2">
+                  <label
+                    htmlFor="avatar"
+                    className="cursor-pointer inline-flex items-center px-4 py-2 font-normal text-darkBlue"
+                  >
+                    Upload new
+                  </label>
+                  <input
+                    id="avatar"
+                    name="avatar"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    className="cursor-pointer inline-flex items-center px-4 py-2 font-normal text-darkBlue"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+              {errors.avatar && (
+                <p className="mt-1 text-sm text-red-600">{errors.avatar}</p>
+              )}
+            </div>
+          </div>
+
           {/* Username Field */}
           <div>
             <div className="relative">
@@ -250,7 +320,9 @@ const handleSubmit = async (e) => {
                   className="font-normal text-sm absolute left-4 top-1/2 transform -translate-y-1/2 flex text-black gap-2"
                 >
                   Username
-                  <span className="text-redberryRed pointer-events-none">*</span>
+                  <span className="text-redberryRed pointer-events-none">
+                    *
+                  </span>
                 </label>
               )}
               <input
@@ -263,7 +335,9 @@ const handleSubmit = async (e) => {
                 onFocus={() => handleFocus("username")}
                 onBlur={handleBlur}
                 className={`w-full px-3 py-3 border rounded-lg ${
-                  errors.username ? "border-red-300" : "border-formGrey text-black"
+                  errors.username
+                    ? "border-red-300"
+                    : "border-formGrey text-black"
                 } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-500`}
               />
               {errors.username && (
@@ -281,7 +355,9 @@ const handleSubmit = async (e) => {
                   className="font-normal text-sm absolute left-4 top-1/2 transform -translate-y-1/2 flex text-black gap-2"
                 >
                   Email
-                  <span className="text-redberryRed pointer-events-none">*</span>
+                  <span className="text-redberryRed pointer-events-none">
+                    *
+                  </span>
                 </label>
               )}
               <input
@@ -312,7 +388,9 @@ const handleSubmit = async (e) => {
                   className="font-normal text-sm absolute left-4 top-1/2 transform -translate-y-1/2 flex text-black gap-2"
                 >
                   Password
-                  <span className="text-redberryRed pointer-events-none">*</span>
+                  <span className="text-redberryRed pointer-events-none">
+                    *
+                  </span>
                 </label>
               )}
               <input
@@ -325,7 +403,9 @@ const handleSubmit = async (e) => {
                 onFocus={() => handleFocus("password")}
                 onBlur={handleBlur}
                 className={`w-full px-3 py-3 pr-12 border rounded-lg ${
-                  errors.password ? "border-red-300" : "border-formGrey text-black"
+                  errors.password
+                    ? "border-red-300"
+                    : "border-formGrey text-black"
                 } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-500`}
               />
               <button
@@ -378,15 +458,18 @@ const handleSubmit = async (e) => {
           {/* Confirm Password Field */}
           <div>
             <div className="relative">
-              {!formData.confirmPassword && focusedField !== "confirmPassword" && (
-                <label
-                  htmlFor="confirmPassword"
-                  className="font-normal text-sm absolute left-4 top-1/2 transform -translate-y-1/2 flex text-black gap-2"
-                >
-                  Confirm Password
-                  <span className="text-redberryRed pointer-events-none">*</span>
-                </label>
-              )}
+              {!formData.confirmPassword &&
+                focusedField !== "confirmPassword" && (
+                  <label
+                    htmlFor="confirmPassword"
+                    className="font-normal text-sm absolute left-4 top-1/2 transform -translate-y-1/2 flex text-black gap-2"
+                  >
+                    Confirm Password
+                    <span className="text-redberryRed pointer-events-none">
+                      *
+                    </span>
+                  </label>
+                )}
               <input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -397,7 +480,9 @@ const handleSubmit = async (e) => {
                 onFocus={() => handleFocus("confirmPassword")}
                 onBlur={handleBlur}
                 className={`w-full px-3 py-3 pr-12 border rounded-lg ${
-                  errors.confirmPassword ? "border-red-300" : "border-formGrey text-black"
+                  errors.confirmPassword
+                    ? "border-red-300"
+                    : "border-formGrey text-black"
                 } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-500`}
               />
               <button
@@ -443,81 +528,27 @@ const handleSubmit = async (e) => {
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-            )}
-          </div>
-
-          {/* Avatar Field */}
-          <div>
-            <div className="space-y-2">
-              <label
-                htmlFor="avatar"
-                className="font-normal text-sm text-black"
-              >
-                Avatar (optional)
-              </label>
-              <div className="flex items-center space-x-4">
-                <label
-                  htmlFor="avatar"
-                  className="cursor-pointer inline-flex items-center px-4 py-2 border border-formGrey rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Choose Image
-                </label>
-                <input
-                  id="avatar"
-                  name="avatar"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                {avatarPreview && (
-                  <div className="relative">
-                    <img
-                      src={avatarPreview}
-                      alt="Avatar preview"
-                      className="w-12 h-12 rounded-full object-cover border-2 border-gray-300"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAvatarPreview(null);
-                        setFormData(prev => ({ ...prev, avatar: null }));
-                      }}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-gray-500">
-                Supported formats: JPEG, PNG, GIF, WebP. Max size: 1MB
+              <p className="mt-1 text-sm text-red-600">
+                {errors.confirmPassword}
               </p>
-              {errors.avatar && (
-                <p className="mt-1 text-sm text-red-600">{errors.avatar}</p>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Enhanced error display */}
           {errors.form && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               <div className="flex items-center">
-                <svg 
-                  className="w-4 h-4 mr-2" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
                 <span className="text-sm">{errors.form}</span>
@@ -539,7 +570,7 @@ const handleSubmit = async (e) => {
 
           <div className="text-center mt-6">
             <p className="text-sm font-normal text-gray-600">
-              Already have an account?{" "}
+              Already member?{" "}
               <Link
                 href="/login"
                 className="font-medium text-redberryRed hover:text-orange-700 transition duration-150 ease-in-out"
