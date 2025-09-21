@@ -30,6 +30,7 @@ export const authOptions = {
           const user = await res.json();
           if (user) {
             return {
+              id: user.user.id || user.user.email,
               email: user.user.email,
               image: user.user.image || null,
               token: user.token,
@@ -43,9 +44,14 @@ export const authOptions = {
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
         token.email = user.email;
         token.image = user.image;
         token.accessToken = user.token;
@@ -53,14 +59,24 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
+      session.user.id = token.id;
       session.user.email = token.email;
+      session.user.image = token.image;
       session.accessToken = token.accessToken;
       return session;
     },
   },
   pages: {
     signIn: "/login",
+    signOut: "/login",
   },
+  events: {
+    async signOut({ session, token }) {
+      console.log("User signed out");
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);

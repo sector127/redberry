@@ -65,6 +65,21 @@ const LogInPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const getErrorMessage = (error) => {
+    switch (error) {
+      case "CredentialsSignin":
+        return "Invalid email or password. Please check your credentials and try again.";
+      case "Configuration":
+        return "There is a problem with the server configuration.";
+      case "AccessDenied":
+        return "Access denied. Please contact support.";
+      case "Verification":
+        return "Please verify your email address before signing in.";
+      default:
+        return "An error occurred during login. Please try again.";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -73,6 +88,11 @@ const LogInPage = () => {
     }
 
     setIsSubmitting(true);
+    
+    setErrors((prev) => {
+      const { form, ...rest } = prev;
+      return rest;
+    });
 
     try {
       const result = await signIn("credentials", {
@@ -81,20 +101,26 @@ const LogInPage = () => {
         password: formData.password,
       });
 
-      if (result.error) {
+      if (result?.error) {
         setErrors((prev) => ({
           ...prev,
-          form: result.error,
+          form: getErrorMessage(result.error),
         }));
-      } else {
+      } else if (result?.ok) {
         setFormData({ email: "", password: "" });
         router.push("/");
+        router.refresh();
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          form: "An unexpected error occurred. Please try again.",
+        }));
       }
     } catch (error) {
       console.error("Login failed:", error);
       setErrors((prev) => ({
         ...prev,
-        form: "An error occurred during login",
+        form: "An error occurred during login. Please try again.",
       }));
     } finally {
       setIsSubmitting(false);
@@ -215,8 +241,26 @@ const LogInPage = () => {
             )}
           </div>
 
+          {/* Enhanced error display */}
           {errors.form && (
-            <p className="mt-1 text-sm text-red-600">{errors.form}</p>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div className="flex items-center">
+                <svg 
+                  className="w-4 h-4 mr-2" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  />
+                </svg>
+                <span className="text-sm">{errors.form}</span>
+              </div>
+            </div>
           )}
 
           <button
