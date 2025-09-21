@@ -1,11 +1,10 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import { Logo } from "@/components/Logo";
-import { LogIn } from "@/components/LogIn";
-import ClientSessionProvider from "@/components/ClientSessionProvider";
+import ClientSessionProvider from "@/providers/ClientSessionProvider";
 import { NavBar } from "@/components/NavBar";
 import { getServerSession } from "next-auth"; // Add this import
-import { authOptions } from "./api/auth/[...nextauth]/route"; // Adjust path as needed
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import ToastProvider from "@/providers/ToastProvider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -25,10 +24,12 @@ export default async function RootLayout({ children }) {
     <html lang="en">
       <body className={`${poppins.variable} antialiased`}>
         <ClientSessionProvider session={session}>
-          <header className="h-[80px] flex items-center justify-between py-2.5 px-[100px]">
-            <NavBar />
-          </header>
-          <main className="fixed-canvas">{children}</main>
+          <ToastProvider>
+            <header className="h-[80px] flex items-center justify-between py-2.5 px-[100px]">
+              <NavBar />
+            </header>
+            <main className="fixed-canvas">{children}</main>
+          </ToastProvider>
         </ClientSessionProvider>
       </body>
     </html>

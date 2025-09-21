@@ -67,6 +67,16 @@ html, body {
   transform-origin: top;
 }
 
+.Toastify__toast--success {
+  background-color: #ff4d4f; /* Your redberryRed color */
+  color: white;
+  font-family: inherit;
+}
+.Toastify__toast--error {
+  background-color: #b91c1c; /* A darker red for errors */
+  color: white;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
