@@ -10,7 +10,7 @@ export const NavBar = ()=> {
     const router = useRouter();
 
     return (
-        <nav className="container mx-auto flex justify-between items-center">
+        <nav className="w-full mx-auto flex justify-between items-center">
             <Logo />
             {status === "authenticated" ? (
                 <UserMenu /> 

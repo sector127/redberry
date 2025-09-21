@@ -57,12 +57,10 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
 }
 
 .fixed-canvas {
   width: 1920px;
-  height: 1080px;
   background: #fff;
   transform-origin: top;
 }
